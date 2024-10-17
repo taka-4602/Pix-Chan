@@ -78,7 +78,7 @@ example.pyにはクエリーIDがわからない時用の ```pix.get_latest_task
 ようするに  
 ```py
 while True:
-    media_ids=pix.get_task_by_id(gen_id)
+    media_ids=pix.get_task_by_id(query_id)
     if media_ids:
         break
     sleep(10)
