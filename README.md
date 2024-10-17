@@ -96,5 +96,5 @@ for media_id in media_ids:
 いちおうアカウント生成 / ログインにinvisible reCaptchaのレスポンスを要求されるけどふつうに入手できるのでBot検知という面ではあんまり役に立ってなかったりする  
 VRAM 12GB以上のGPU、買いませんか？(買えない)  
 ## コンタクト
-Discord サーバー / https://discord.gg/aSyaAK7Ktm
+Discord サーバー / https://discord.gg/aSyaAK7Ktm  
 Discord ユーザー名 / .taka.
