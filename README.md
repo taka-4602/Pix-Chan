@@ -1,6 +1,10 @@
 # Pix-Chan
 PixAIというサイトのPython用APIラッパー、すぐ対策されそう
-### >> ```pip install pix-chan``` <<  
+## インストール
+```py
+pip install pix-chan
+```
+必須：requests
 ## 使い方
 #### example.py  
 ```py
