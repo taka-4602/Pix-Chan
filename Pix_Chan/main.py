@@ -2,8 +2,8 @@ import requests
 from time import sleep
 
 def captcha(proxy:dict):
-    responce=requests.get("https://www.google.com/recaptcha/api2/anchor?ar=1&k=6Ld_hskiAAAAADfg9HredZvZx8Z_C8FrNJ519Rc6&co=aHR0cHM6Ly9waXhhaS5hcnQ6NDQz&hl=ja&v=aR-zv8WjtWx4lAw-tRCA-zca&size=invisible&cb=u2wj0bvs99s6",proxies=proxy).text
-    recaptcha_token=responce.split('recaptcha-token" value="')[1].split('">')[0]
+    response=requests.get("https://www.google.com/recaptcha/api2/anchor?ar=1&k=6Ld_hskiAAAAADfg9HredZvZx8Z_C8FrNJ519Rc6&co=aHR0cHM6Ly9waXhhaS5hcnQ6NDQz&hl=ja&v=aR-zv8WjtWx4lAw-tRCA-zca&size=invisible&cb=u2wj0bvs99s6",proxies=proxy).text
+    recaptcha_token=response.split('recaptcha-token" value="')[1].split('">')[0]
     payload={
         "v":"aR-zv8WjtWx4lAw-tRCA-zca",
         "reason":"q",
@@ -17,9 +17,9 @@ def captcha(proxy:dict):
         "bg":""
     }
 
-    responce=requests.post(f"https://www.google.com/recaptcha/api2/reload?k=6Ld_hskiAAAAADfg9HredZvZx8Z_C8FrNJ519Rc6",data=payload,proxies=proxy).text
+    response=requests.post(f"https://www.google.com/recaptcha/api2/reload?k=6Ld_hskiAAAAADfg9HredZvZx8Z_C8FrNJ519Rc6",data=payload,proxies=proxy).text
     try:
-        token=responce.split('"rresp","')[1].split('"')[0]
+        token=response.split('"rresp","')[1].split('"')[0]
     except:
         return False
     
@@ -69,15 +69,15 @@ class PixAI():
             if login:
                 payload["query"]="\n    mutation login($input: RegisterOrLoginInput!) {\n  login(input: $input) {\n    ...UserDetail\n  }\n}\n    \n    fragment UserDetail on User {\n  ...UserBase\n  coverMedia {\n    ...MediaBase\n  }\n  followedByMe\n  followingMe\n  followerCount\n  followingCount\n  inspiredCount\n}\n    \n\n    fragment UserBase on User {\n  id\n  email\n  emailVerified\n  username\n  displayName\n  createdAt\n  updatedAt\n  avatarMedia {\n    ...MediaBase\n  }\n  membership {\n    membershipId\n    tier\n  }\n  isAdmin\n}\n    \n\n    fragment MediaBase on Media {\n  id\n  type\n  width\n  height\n  urls {\n    variant\n    url\n  }\n  imageType\n  fileUrl\n  duration\n  thumbnailUrl\n  hlsUrl\n  size\n  flag {\n    ...ModerationFlagBase\n  }\n}\n    \n\n    fragment ModerationFlagBase on ModerationFlag {\n  status\n  isSensitive\n  isMinors\n  isRealistic\n  isFlagged\n  isSexyPic\n  isSexyText\n  shouldBlur\n  isWarned\n}\n    "
             
-            responce=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
-            if "errors" in responce.json():
-                raise PixError(responce.json())
+            response=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
+            if "errors" in response.json():
+                raise PixError(response.json())
             
-            self.token=responce.headers["Token"]
+            self.token=response.headers["Token"]
             self.headers["authorization"]=f"Bearer {self.token}"
 
             if not login:
-                self.user_id=responce.json()["data"]["register"]["id"]
+                self.user_id=response.json()["data"]["register"]["id"]
                 age_payload={
                     "query":"\n    mutation setPreferences($value: JSONObject!) {\n  setPreferences(value: $value)\n}\n    ",
                     "variables":{
@@ -87,18 +87,18 @@ class PixAI():
                             }
                         }
                     }
-                responce=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=age_payload,proxies=self.proxy)
+                response=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=age_payload,proxies=self.proxy)
             else:
-                self.user_id=responce.json()["data"]["login"]["id"]
+                self.user_id=response.json()["data"]["login"]["id"]
         
 
     def get_quota(self):
         payload={"query":"\n    query getMyQuota {\n  me {\n    quotaAmount\n  }\n}\n    ","variables":{}}
-        responce=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
-        if "errors" in responce.json():
-            raise PixError(responce.json())
+        response=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
+        if "errors" in response.json():
+            raise PixError(response.json())
         
-        return int(responce.json()["data"]["me"]["quotaAmount"])
+        return int(response.json()["data"]["me"]["quotaAmount"])
 
     def get_media(self,media_id:str):
         payload={
@@ -106,19 +106,19 @@ class PixAI():
             "variables":{"id":media_id}
             }
         
-        responce=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
-        if "errors" in responce.json():
-            raise PixError(responce.json())
+        response=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
+        if "errors" in response.json():
+            raise PixError(response.json())
         
-        return responce.json()["data"]["media"]["urls"][0]["url"]
+        return response.json()["data"]["media"]["urls"][0]["url"]
 
     def claim_daily_quota(self):
         payload={"query":"\n    mutation dailyClaimQuota {\n  dailyClaimQuota\n}\n    "}
-        responce=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
-        if "errors" in responce.json():
-            raise PixError(responce.json())
+        response=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
+        if "errors" in response.json():
+            raise PixError(response.json())
         
-        return responce.json()
+        return response.json()
     
     def claim_questionnaire_quota(self,wait:int=3):
         form_data={
@@ -141,11 +141,11 @@ class PixAI():
         if wait>0:
             sleep(wait)
 
-        responce=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
-        if "errors" in responce.json():
-            raise PixError(responce.json())
+        response=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
+        if "errors" in response.json():
+            raise PixError(response.json())
             
-        return responce.json()
+        return response.json()
 
     def get_all_tasks(self):
         payload={
@@ -154,8 +154,8 @@ class PixAI():
                 "last":30
                 }
             }
-        responce=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
-        edges=responce.json()["data"]["me"]["tasks"]["edges"]
+        response=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
+        edges=response.json()["data"]["me"]["tasks"]["edges"]
         mediaids_all=[]
         for edge in edges:
             mediaids=[]
@@ -166,19 +166,19 @@ class PixAI():
                     }
                 }
             
-            responce=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
-            if "errors" in responce.json():
-                raise PixError(responce.json())
+            response=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
+            if "errors" in response.json():
+                raise PixError(response.json())
 
-            if responce.json()["data"]["task"]["status"]!="completed":
+            if response.json()["data"]["task"]["status"]!="completed":
                 mediaids.append(None)
                 continue
 
             try:
-                for batch in responce.json()["data"]["task"]["outputs"]["batch"]:
+                for batch in response.json()["data"]["task"]["outputs"]["batch"]:
                     mediaids.append(batch["mediaId"])
             except:
-                mediaids.append(responce.json()["data"]["task"]["outputs"]["mediaId"])
+                mediaids.append(response.json()["data"]["task"]["outputs"]["mediaId"])
 
             mediaids_all.append(mediaids)
 
@@ -192,12 +192,12 @@ class PixAI():
                 }
             }
         
-        responce=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
-        if "errors" in responce.json():
-            raise PixError(responce.json())
+        response=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
+        if "errors" in response.json():
+            raise PixError(response.json())
         
-        tasks=len(responce.json()["data"]["me"]["tasks"]["edges"])
-        query_id=responce.json()["data"]["me"]["tasks"]["edges"][tasks-1]["node"]["id"]
+        tasks=len(response.json()["data"]["me"]["tasks"]["edges"])
+        query_id=response.json()["data"]["me"]["tasks"]["edges"][tasks-1]["node"]["id"]
         payload={
             "query":"\n    query getTaskById($id: ID!) {\n  task(id: $id) {\n    ...TaskDetail\n  }\n}\n    \n    fragment TaskDetail on Task {\n  ...TaskBase\n  favoritedAt\n  artworkId\n  artworkIds\n  artworks {\n    createdAt\n    hidePrompts\n    id\n    isNsfw\n    isSensitive\n    mediaId\n    title\n    updatedAt\n    flag {\n      ...ModerationFlagBase\n    }\n  }\n  media {\n    ...MediaBase\n  }\n  type {\n    type\n    model\n  }\n}\n    \n\n    fragment TaskBase on Task {\n  id\n  userId\n  parameters\n  outputs\n  status\n  priority\n  runnerId\n  startedAt\n  endAt\n  createdAt\n  updatedAt\n  retryCount\n  paidCredit\n  moderationAction {\n    promptsModerationAction\n  }\n}\n    \n\n    fragment ModerationFlagBase on ModerationFlag {\n  status\n  isSensitive\n  isMinors\n  isRealistic\n  isFlagged\n  isSexyPic\n  isSexyText\n  shouldBlur\n  isWarned\n}\n    \n\n    fragment MediaBase on Media {\n  id\n  type\n  width\n  height\n  urls {\n    variant\n    url\n  }\n  imageType\n  fileUrl\n  duration\n  thumbnailUrl\n  hlsUrl\n  size\n  flag {\n    ...ModerationFlagBase\n  }\n}\n    ",
             "variables":{
@@ -206,19 +206,19 @@ class PixAI():
             }
         
         try:
-            if responce.json()["data"]["me"]["tasks"]["edges"][0]["node"]["status"]!="completed":
+            if response.json()["data"]["me"]["tasks"]["edges"][0]["node"]["status"]!="completed":
                 return None
         except:
             return None
         
         mediaids=[]
-        responce=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
+        response=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
         
         try:
-            for batch in responce.json()["data"]["task"]["outputs"]["batch"]:
+            for batch in response.json()["data"]["task"]["outputs"]["batch"]:
                 mediaids.append(batch["mediaId"])
         except:
-            mediaids.append(responce.json()["data"]["task"]["outputs"]["mediaId"])
+            mediaids.append(response.json()["data"]["task"]["outputs"]["mediaId"])
 
         return mediaids
 
@@ -229,22 +229,22 @@ class PixAI():
                 "id":query_id
                 }
             }
-        responce=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
-        if "errors" in responce.json():
-            raise PixError(responce.json())
+        response=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
+        if "errors" in response.json():
+            raise PixError(response.json())
         
         try:
-            if responce.json()["data"]["task"]["status"]!="completed":
+            if response.json()["data"]["task"]["status"]!="completed":
                 return None
         except:
             return None
         
         mediaids=[]
         try:
-            for batch in responce.json()["data"]["task"]["outputs"]["batch"]:
+            for batch in response.json()["data"]["task"]["outputs"]["batch"]:
                 mediaids.append(batch["mediaId"])
         except:
-            mediaids.append(responce.json()["data"]["task"]["outputs"]["mediaId"])
+            mediaids.append(response.json()["data"]["task"]["outputs"]["mediaId"])
 
         return mediaids
 
@@ -272,8 +272,8 @@ class PixAI():
         if x4:
             payload["batchSize"]=4
 
-        responce=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
-        if "errors" in responce.json():
-            raise PixError(responce.json())
+        response=requests.post("https://api.pixai.art/graphql",headers=self.headers,json=payload,proxies=self.proxy)
+        if "errors" in response.json():
+            raise PixError(response.json())
         
-        return responce.json()["data"]["createGenerationTask"]["id"]
+        return response.json()["data"]["createGenerationTask"]["id"]
