@@ -32,7 +32,6 @@ class PixAI():
         self.proxy=proxy
         self.headers = {
             "Accept": "application/json, text/plain, */*",
-            "Accept-Encoding": "gzip, deflate, br, zstd",
             "Accept-Language": "ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7",
             "Content-Type": "application/json",
             "Origin": "https://pixai.art",
@@ -122,19 +121,16 @@ class PixAI():
     
     def claim_questionnaire_quota(self,wait:int=3):
         form_data={
-            "entry.64278853": self.user_id, 
-            "entry.1548011038": "",
-            "entry.1589736677": "",
-            "entry.1030078480": "",
-            "entry.2090837715": "趣味に身を投じる人",
-            "entry.238512000": "18-25",
-            "entry.1451582794": "日本",
-            "entry.1078511207": "Twitter",
-            "entry.571931610": "AI生成ツールをほとんど使ったことがない",
-            "entry.1446121912": "好きなキャラクター",
-            "entry.2087342135": "カートゥーン",
-            "entry.1264482712": "壁紙・プロフィール画像用",
-            "entry.1293236062": "7"
+            'entry.64278853': self.user_id, 
+            'entry.2090837715': '趣味に身を投じる人', 
+            'entry.238512000': '18-25', 
+            'entry.1451582794': '日本', 
+            'entry.571931610': 'AI生成ツールをほとんど使ったことがない', 
+            'entry.1078511207': 'Twitter', 
+            'entry.1446121912': '好きなキャラクター', 
+            'entry.2087342135': 'カートゥーン', 
+            'entry.1264482712': '壁紙・プロフィール画像用', 
+            'entry.1293236062': '7', 
         }
         requests.post("https://docs.google.com/forms/u/0/d/e/1FAIpQLSdYvAY6PDOVBl3Bd2FgnkCoz-G0KXk8OV_63gG96FIVYm0mEw/formResponse",data=form_data,proxies=self.proxy)
         payload={
